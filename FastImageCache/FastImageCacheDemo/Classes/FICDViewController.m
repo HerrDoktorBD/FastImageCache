@@ -16,7 +16,7 @@
 
 #pragma mark Class Extension
 
-@interface FICDViewController () <UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate, FICDPhotosTableViewCellDelegate, FICDFullscreenPhotoDisplayControllerDelegate> {
+@interface FICDViewController () <UITableViewDataSource, UITableViewDelegate, FICDPhotosTableViewCellDelegate, FICDFullscreenPhotoDisplayControllerDelegate> {
     FICDTableView *_tableView;
     NSArray *_photos;
     
@@ -28,7 +28,6 @@
     BOOL _shouldResetData;
     NSInteger _selectedMethodSegmentControlIndex;
     NSInteger _callbackCount;
-    UIAlertView *_noImagesAlertView;
     UILabel *_averageFPSLabel;
 }
 
@@ -42,40 +41,51 @@
 
 - (id)init {
     self = [super init];
-    
-    if (self != nil) {
-        NSBundle *mainBundle = [NSBundle mainBundle];
-        NSArray *imageURLs = [mainBundle URLsForResourcesWithExtension:@"jpg" subdirectory:@"Demo Images"];
-        
-        if ([imageURLs count] > 0) {
-            NSMutableArray *photos = [[NSMutableArray alloc] init];
-            for (NSURL *imageURL in imageURLs) {
-                FICDPhoto *photo = [[FICDPhoto alloc] init];
-                [photo setSourceImageURL:imageURL];
-                [photos addObject:photo];
-            }
-            
-            while ([photos count] < 5000) {
-                [photos addObjectsFromArray:photos]; // Create lots of photos to scroll through
-            }
-            
-            _photos = photos;
-        } else {
-            NSString *title = @"No Source Images";
-            NSString *message = @"There are no JPEG images in the Demo Images folder. Please run the fetch_demo_images.sh script, or add your own JPEG images to this folder before running the demo app.";
-            _noImagesAlertView = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-            [_noImagesAlertView show];
-        }
-    }
-    
     return self;
+}
+
+- (void) checkImages {
+
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSArray *imageURLs = [mainBundle URLsForResourcesWithExtension:@"jpg" subdirectory:@"Demo Images"];
+    
+    if ([imageURLs count] > 0) {
+        NSMutableArray *photos = [[NSMutableArray alloc] init];
+        for (NSURL *imageURL in imageURLs) {
+            FICDPhoto *photo = [[FICDPhoto alloc] init];
+            [photo setSourceImageURL:imageURL];
+            [photos addObject:photo];
+        }
+        
+        while ([photos count] < 5000) {
+            [photos addObjectsFromArray:photos]; // Create lots of photos to scroll through
+        }
+        
+        _photos = photos;
+    } else {
+        NSString *title = @"No Source Images";
+        NSString *message = @"There are no JPEG images in the Demo Images folder. Please run the fetch_demo_images.sh script, or add your own JPEG images to this folder before running the demo app.";
+
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle: title
+                                                                       message: message
+                                                                preferredStyle: UIAlertControllerStyleAlert];
+        UIAlertAction* cancelAction = [UIAlertAction actionWithTitle: @"OK"
+                                                               style: UIAlertActionStyleCancel
+                                                             handler: ^(__unused UIAlertAction* action) {
+            //[NSThread exit];
+        }];
+        [alert addAction: cancelAction];
+
+        // present alert
+        [self presentViewController: alert
+                                    animated: YES
+                                  completion: nil];
+    }
 }
 
 - (void)dealloc {
     [_tableView setDelegate:nil];
     [_tableView setDataSource:nil];
-    
-    [_noImagesAlertView setDelegate:nil];
 }
 
 #pragma mark - View Controller Lifecycle
@@ -84,10 +94,12 @@
     CGRect viewFrame = [[UIScreen mainScreen] bounds];
     UIView *view = [[UIView alloc] initWithFrame:viewFrame];
     [view setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight)];
-    [view setBackgroundColor:[UIColor whiteColor]];
-    
+    [view setBackgroundColor:[UIColor systemBackgroundColor]];
+
     [self setView:view];
-    
+
+    [self checkImages];
+
     // Configure the table view
     if (_tableView == nil) {
         _tableView = [[FICDTableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
@@ -178,12 +190,13 @@
 #pragma mark - Reloading Data
 
 - (void)reloadTableViewAndScrollToTop:(BOOL)scrollToTop {
-    UIApplication *sharedApplication = [UIApplication sharedApplication];
+    //UIApplication *sharedApplication = [UIApplication sharedApplication];
     
     // Don't allow interaction events to interfere with thumbnail generation
-    if ([sharedApplication isIgnoringInteractionEvents] == NO) {
-        [sharedApplication beginIgnoringInteractionEvents];
-    }
+    self.view.userInteractionEnabled = NO;
+    //if ([sharedApplication isIgnoringInteractionEvents] == NO) {
+    //    [sharedApplication beginIgnoringInteractionEvents];
+    //}
 
     if (scrollToTop) {
         // If the table view isn't already scrolled to top, we do that now, deferring the actual table view reloading logic until the animation finishes.
@@ -227,11 +240,12 @@
             }
             
             [self->_tableView setHidden:NO];
-            
+
             // Re-enable interaction events once every thumbnail has been generated
-            if ([sharedApplication isIgnoringInteractionEvents]) {
-                [sharedApplication endIgnoringInteractionEvents];
-            }
+            self.view.userInteractionEnabled = YES;
+            //if ([sharedApplication isIgnoringInteractionEvents]) {
+            //    [sharedApplication endIgnoringInteractionEvents];
+            //}
         };
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
@@ -373,7 +387,7 @@ static BOOL _FICDImageIsLight(UIImage *image) {
 
 - (void)_updateStatusBarStyleForColorAveragedImage:(UIImage *)colorAveragedImage {
     BOOL imageIsLight = _FICDImageIsLight(colorAveragedImage);
-    
+
     UIStatusBarStyle statusBarStyle = imageIsLight ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
     [[UIApplication sharedApplication] setStatusBarStyle:statusBarStyle animated:YES];
 }
@@ -513,14 +527,6 @@ static BOOL _FICDImageIsLight(UIImage *image) {
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
             [self reloadTableViewAndScrollToTop:NO];
         });
-    }
-}
-
-#pragma mark - UIAlertViewDelegate
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    if (alertView == _noImagesAlertView) {
-        //[NSThread exit];
     }
 }
 

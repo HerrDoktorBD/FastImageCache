@@ -118,7 +118,7 @@
     _originalThumbnailImageViewSubviewIndex = [[[thumbnailImageView superview] subviews] indexOfObject:thumbnailImageView];
     
     // Configure the fullscreen view
-    UIView *rootViewControllerView = [[[[UIApplication sharedApplication] keyWindow] rootViewController] view];
+    UIView *rootViewControllerView = [UIApplication sharedApplication].delegate.window.rootViewController.view;
     [_fullscreenView setFrame:[rootViewControllerView bounds]];
     [rootViewControllerView addSubview:_fullscreenView];
     

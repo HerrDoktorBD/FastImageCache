@@ -12,7 +12,8 @@
 #import "FICImageTableChunk.h"
 #import "FICImageTableEntry.h"
 #import "FICUtilities.h"
-#import <libkern/OSAtomic.h>
+//#import <libkern/OSAtomic.h>
+#import <stdatomic.h>
 
 #import "FICImageCache+FICErrorLogging.h"
 
@@ -65,7 +66,8 @@ static BOOL FICProtectedDataAvailable = NO;
     NSMutableOrderedSet *_MRUEntries;
     NSCountedSet *_inUseEntries;
     NSDictionary *_imageFormatDictionary;
-    int32_t _metadataVersion;
+    //int32_t _metadataVersion;
+    atomic_int _metadataVersion;
 
     NSString *_fileDataProtectionMode;
     BOOL _canAccessData;
@@ -713,7 +715,8 @@ static void _FICReleaseImageData(void *info, const void *data, size_t size) {
                                             [[_MRUEntries array] copy], FICImageTableMRUArrayKey,
                                             [_imageFormatDictionary copy], FICImageTableFormatKey, nil];
 
-        __block int32_t metadataVersion = OSAtomicIncrement32(&_metadataVersion);
+        //__block int32_t metadataVersion = OSAtomicIncrement32(&_metadataVersion);
+        __block int32_t metadataVersion = atomic_fetch_add(&_metadataVersion, 1);
 
         [_lock unlock];
         

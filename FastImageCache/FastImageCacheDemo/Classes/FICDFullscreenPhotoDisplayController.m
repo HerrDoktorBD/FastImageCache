@@ -160,14 +160,14 @@
     
     // Animate fullscreen photo appearance
     [UIView animateWithDuration:0.3 animations:^{
-        [_backgroundView setAlpha:1];
-        [_thumbnailImageView setFrame:[_fullscreenView bounds]];
-        [_sourceImageView setAlpha:1];
-        [_sourceImageView setFrame:[_fullscreenView bounds]];
+        [self->_backgroundView setAlpha:1];
+        [self->_thumbnailImageView setFrame:[self->_fullscreenView bounds]];
+        [self->_sourceImageView setAlpha:1];
+        [self->_sourceImageView setFrame:[self->_fullscreenView bounds]];
     } completion:^(BOOL finished) {
         // Inform the delegate that we just showed a fullscreen photo
-        if (_delegateImplementsDidShowSourceImageForPhotoWithThumbnailImageView) {
-            [_delegate photoDisplayController:self didShowSourceImage:sourceImage forPhoto:_photo withThumbnailImageView:_thumbnailImageView];
+        if (self->_delegateImplementsDidShowSourceImageForPhotoWithThumbnailImageView) {
+            [self->_delegate photoDisplayController:self didShowSourceImage:sourceImage forPhoto:self->_photo withThumbnailImageView:self->_thumbnailImageView];
         }
     }];
 }
@@ -183,31 +183,31 @@
 
     // Animate fullscreen photo appearance
     [UIView animateWithDuration:0.3 animations:^{
-        [_backgroundView setAlpha:0];
-        [_thumbnailImageView setFrame:convertedThumbnailImageViewFrame];
-        [_sourceImageView setAlpha:0];
-        [_sourceImageView setFrame:convertedThumbnailImageViewFrame];
+        [self->_backgroundView setAlpha:0];
+        [self->_thumbnailImageView setFrame:convertedThumbnailImageViewFrame];
+        [self->_sourceImageView setAlpha:0];
+        [self->_sourceImageView setFrame:convertedThumbnailImageViewFrame];
     } completion:^(BOOL finished) {
-        [_thumbnailImageView setFrame:_originalThumbnailImageViewFrame];
-        [_originalThumbnailImageViewSuperview insertSubview:_thumbnailImageView atIndex:_originalThumbnailImageViewSubviewIndex];
+        [self->_thumbnailImageView setFrame:self->_originalThumbnailImageViewFrame];
+        [self->_originalThumbnailImageViewSuperview insertSubview:self->_thumbnailImageView atIndex:self->_originalThumbnailImageViewSubviewIndex];
         
-        [_fullscreenView removeFromSuperview];
+        [self->_fullscreenView removeFromSuperview];
         
         // Inform the delegate that we just hide a fullscreen photo
-        if (_delegateImplementsDidHideSourceImageForPhotoWithThumbnailImageView) {
-            [_delegate photoDisplayController:self didHideSourceImage:sourceImage forPhoto:_photo withThumbnailImageView:_thumbnailImageView];
+        if (self->_delegateImplementsDidHideSourceImageForPhotoWithThumbnailImageView) {
+            [self->_delegate photoDisplayController:self didHideSourceImage:sourceImage forPhoto:self->_photo withThumbnailImageView:self->_thumbnailImageView];
         }
         
         // Clean up
-        _photo = nil;
+        self->_photo = nil;
         
-        _thumbnailImageView = nil;
-        _originalThumbnailImageViewSuperview = nil;
+        self->_thumbnailImageView = nil;
+        self->_originalThumbnailImageViewSuperview = nil;
         
-        _originalThumbnailImageViewFrame = CGRectZero;
-        _originalThumbnailImageViewSubviewIndex = 0;
+        self->_originalThumbnailImageViewFrame = CGRectZero;
+        self->_originalThumbnailImageViewSubviewIndex = 0;
         
-        _sourceImageView.image = nil;
+        self->_sourceImageView.image = nil;
     }];
 }
 

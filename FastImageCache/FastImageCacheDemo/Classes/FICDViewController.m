@@ -219,14 +219,14 @@
         [[self navigationController] setToolbarHidden:(_usesImageTable == NO) animated:YES];
         
         dispatch_block_t tableViewReloadBlock = ^{
-            [_tableView reloadData];
-            [_tableView resetScrollingPerformanceCounters];
+            [self->_tableView reloadData];
+            [self->_tableView resetScrollingPerformanceCounters];
             
-            if ([_tableView isHidden]) {
-                [[_tableView layer] addAnimation:[CATransition animation] forKey:kCATransition];
+            if ([self->_tableView isHidden]) {
+                [[self->_tableView layer] addAnimation:[CATransition animation] forKey:kCATransition];
             }
             
-            [_tableView setHidden:NO];
+            [self->_tableView setHidden:NO];
             
             // Re-enable interaction events once every thumbnail has been generated
             if ([sharedApplication isIgnoringInteractionEvents]) {
@@ -236,30 +236,30 @@
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             // In order to make a fair comparison for both methods, we ensure that the cached data is ready to go before updating the UI.
-            if (_usesImageTable) {
-                _callbackCount = 0;
-                NSSet *uniquePhotos = [NSSet setWithArray:_photos];
+            if (self->_usesImageTable) {
+                self->_callbackCount = 0;
+                NSSet *uniquePhotos = [NSSet setWithArray:self->_photos];
                 for (FICDPhoto *photo in uniquePhotos) {
                     CFAbsoluteTime startTime = CFAbsoluteTimeGetCurrent();
                     FICImageCache *sharedImageCache = [FICImageCache sharedImageCache];
                     
-                    if ([sharedImageCache imageExistsForEntity:photo withFormatName:_imageFormatName] == NO) {
-                        if (_callbackCount == 0) {
+                    if ([sharedImageCache imageExistsForEntity:photo withFormatName:self->_imageFormatName] == NO) {
+                        if (self->_callbackCount == 0) {
                             NSLog(@"*** FIC Demo: Fast Image Cache: Generating thumbnails...");
                             
                             // Hide the table view's contents while we generate new thumbnails
                             dispatch_async(dispatch_get_main_queue(), ^{
-                                [_tableView setHidden:YES];
-                                [[_tableView layer] addAnimation:[CATransition animation] forKey:kCATransition];
+                                [self->_tableView setHidden:YES];
+                                [[self->_tableView layer] addAnimation:[CATransition animation] forKey:kCATransition];
                             });
                         }
                         
-                        _callbackCount++;
+                        self->_callbackCount++;
                         
-                        [sharedImageCache asynchronouslyRetrieveImageForEntity:photo withFormatName:_imageFormatName completionBlock:^(id<FICEntity> entity, NSString *formatName, UIImage *image) {
-                            _callbackCount--;
+                        [sharedImageCache asynchronouslyRetrieveImageForEntity:photo withFormatName:self->_imageFormatName completionBlock:^(id<FICEntity> entity, NSString *formatName, UIImage *image) {
+                            self->_callbackCount--;
                             
-                            if (_callbackCount == 0) {
+                            if (self->_callbackCount == 0) {
                                 NSLog(@"*** FIC Demo: Fast Image Cache: Generated thumbnails in %g seconds", CFAbsoluteTimeGetCurrent() - startTime);
                                 dispatch_async(dispatch_get_main_queue(), tableViewReloadBlock);
                             }
@@ -267,7 +267,7 @@
                     }
                 }
                 
-                if (_callbackCount == 0) {
+                if (self->_callbackCount == 0) {
                     dispatch_async(dispatch_get_main_queue(), tableViewReloadBlock);
                 }
             } else {
@@ -395,8 +395,8 @@ static BOOL _FICDImageIsLight(UIImage *image) {
                 
                 // Hide the table view's contents while we generate new thumbnails
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [_tableView setHidden:YES];
-                    [[_tableView layer] addAnimation:[CATransition animation] forKey:kCATransition];
+                    [self->_tableView setHidden:YES];
+                    [[self->_tableView layer] addAnimation:[CATransition animation] forKey:kCATransition];
                 });
             }
             
@@ -520,7 +520,7 @@ static BOOL _FICDImageIsLight(UIImage *image) {
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
     if (alertView == _noImagesAlertView) {
-        [NSThread exit];
+        //[NSThread exit];
     }
 }
 

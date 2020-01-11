@@ -168,9 +168,9 @@ static NSString *const FICImageFormatProtectionModeKey = @"protectionMode";
     [dictionaryRepresentation setValue:_family forKey:FICImageFormatFamilyKey];
     [dictionaryRepresentation setValue:[NSNumber numberWithUnsignedInteger:_imageSize.width] forKey:FICImageFormatWidthKey];
     [dictionaryRepresentation setValue:[NSNumber numberWithUnsignedInteger:_imageSize.height] forKey:FICImageFormatHeightKey];
-    [dictionaryRepresentation setValue:[NSNumber numberWithInt:_style] forKey:FICImageFormatStyleKey];
+    [dictionaryRepresentation setValue:[NSNumber numberWithInt:(int)_style] forKey:FICImageFormatStyleKey];
     [dictionaryRepresentation setValue:[NSNumber numberWithUnsignedInteger:_maximumCount] forKey:FICImageFormatMaximumCountKey];
-    [dictionaryRepresentation setValue:[NSNumber numberWithInt:_devices] forKey:FICImageFormatDevicesKey];
+    [dictionaryRepresentation setValue:[NSNumber numberWithInt:(int)_devices] forKey:FICImageFormatDevicesKey];
     [dictionaryRepresentation setValue:[NSNumber numberWithUnsignedInteger:_protectionMode] forKey:FICImageFormatProtectionModeKey];
 
     [dictionaryRepresentation setValue:[NSNumber numberWithFloat:[[UIScreen mainScreen] scale]] forKey:FICImageTableScreenScaleKey];

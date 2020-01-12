@@ -24,6 +24,14 @@
 #pragma mark - Application Lifecycle
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
+    BOOL runningTests = NSClassFromString(@"XCTestCase") != nil;
+    if (runningTests) {
+        self.window.rootViewController = [UIViewController new];
+        return true;
+    }
+    // Your normal code below this
+
     NSMutableArray *mutableImageFormats = [NSMutableArray array];
     
     // Square image formats...

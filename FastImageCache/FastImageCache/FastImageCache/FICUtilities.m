@@ -31,32 +31,41 @@ inline size_t FICByteAlignForCoreAnimation(size_t bytesPerRow) {
 NSString * FICStringWithUUIDBytes(CFUUIDBytes UUIDBytes) {
     NSString *UUIDString = nil;
     CFUUIDRef UUIDRef = CFUUIDCreateFromUUIDBytes(kCFAllocatorDefault, UUIDBytes);
-    
+
     if (UUIDRef != NULL) {
         UUIDString = (__bridge_transfer NSString *)CFUUIDCreateString(kCFAllocatorDefault, UUIDRef);
         CFRelease(UUIDRef);
     }
-    
+
     return UUIDString;
 }
 
-CFUUIDBytes FICUUIDBytesWithString(NSString *string) {
+CFUUIDBytes FICUUIDBytesWithString(NSString* string) {
     CFUUIDBytes UUIDBytes = {};
     CFUUIDRef UUIDRef = CFUUIDCreateFromString(kCFAllocatorDefault, (CFStringRef)string);
-    
+
     if (UUIDRef != NULL) {
         UUIDBytes = CFUUIDGetUUIDBytes(UUIDRef);
         CFRelease(UUIDRef);
     }
-    
+
     return UUIDBytes;
 }
 
-CFUUIDBytes FICUUIDBytesFromMD5HashOfString(NSString *MD5Hash) {
-    const char *UTF8String = [MD5Hash UTF8String];
+NSString* FICUUIDFromMD5HashOfString(NSString *string) {
+    const char *UTF8String = [string UTF8String];
     CFUUIDBytes UUIDBytes;
-    
+
     CC_MD5(UTF8String, (CC_LONG)strlen(UTF8String), (unsigned char*)&UUIDBytes);
-    
-    return UUIDBytes;
+
+    NSString* _UUID = FICStringWithUUIDBytes(UUIDBytes);
+    return _UUID;
+}
+
+NSString* FICUUIDFromSHA256HashOfString(NSString* string) {
+
+    NSData* data = [string dataUsingEncoding: NSUTF8StringEncoding];
+    NSMutableData* sha256Data = [NSMutableData dataWithLength: CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256([data bytes], (CC_LONG)[data length], [sha256Data mutableBytes]);
+    return [sha256Data base64EncodedStringWithOptions: 0];
 }

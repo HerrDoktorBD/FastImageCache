@@ -77,9 +77,10 @@
         [alert addAction: cancelAction];
 
         // present alert
-        [self presentViewController: alert
-                                    animated: YES
-                                  completion: nil];
+        UIViewController* topController = [UIApplication sharedApplication].delegate.window.rootViewController;
+        [topController presentViewController: alert
+                                        animated: YES
+                                    completion: nil];
     }
 }
 

@@ -6,6 +6,5 @@
 //  See LICENSE for full license agreement.
 //
 
-#import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <UIKit/UIKit.h>

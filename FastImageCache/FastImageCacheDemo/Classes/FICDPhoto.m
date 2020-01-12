@@ -107,13 +107,21 @@ static UIImage * _FICDSquareImageFromImage(UIImage *image) {
     return squareImage;
 }
 
-static UIImage * _FICDStatusBarImageFromImage(UIImage *image) {
+static UIImage* _FICDStatusBarImageFromImage(UIImage* image) {
+
+    // Crop the image to the area occupied by the status bar
     CGSize imageSize = [image size];
-    CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
-    CGRect cropRect = CGRectMake(0, 0, imageSize.width, statusBarSize.height);
-    
+    __block CGFloat statusBarHeight;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController* vc = [UIApplication sharedApplication].delegate.window.rootViewController;
+        statusBarHeight = vc.view.window.windowScene.statusBarManager.statusBarFrame.size.height;
+    });
+
+    CGRect cropRect = CGRectMake(0, 0, imageSize.width, statusBarHeight);
+
     CGImageRef croppedImageRef = CGImageCreateWithImageInRect([image CGImage], cropRect);
-    UIImage *statusBarImage = [UIImage imageWithCGImage:croppedImageRef];
+    UIImage* statusBarImage = [UIImage imageWithCGImage:croppedImageRef];
     CGImageRelease(croppedImageRef);
     
     return statusBarImage;
@@ -171,9 +179,6 @@ static UIImage * _FICDStatusBarImageFromImage(UIImage *image) {
     if (_UUID == nil) {
         // MD5 hashing is expensive enough that we only want to do it once
         NSString *imageName = [_sourceImageURL lastPathComponent];
-
-        //CFUUIDBytes UUIDBytes = FICUUIDBytesFromMD5HashOfString(imageName);
-        //_UUID = FICStringWithUUIDBytes(UUIDBytes);
         _UUID = FICUUIDFromMD5HashOfString(imageName);
     }
     

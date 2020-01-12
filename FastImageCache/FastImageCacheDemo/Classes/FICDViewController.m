@@ -17,6 +17,7 @@
 #pragma mark Class Extension
 
 @interface FICDViewController () <UITableViewDataSource, UITableViewDelegate, FICDPhotosTableViewCellDelegate, FICDFullscreenPhotoDisplayControllerDelegate> {
+
     FICDTableView *_tableView;
     NSArray *_photos;
     
@@ -29,6 +30,7 @@
     NSInteger _selectedMethodSegmentControlIndex;
     NSInteger _callbackCount;
     UILabel *_averageFPSLabel;
+    UIStatusBarStyle statusBarStyle;
 }
 
 @end
@@ -195,9 +197,6 @@
     
     // Don't allow interaction events to interfere with thumbnail generation
     self.view.userInteractionEnabled = NO;
-    //if ([sharedApplication isIgnoringInteractionEvents] == NO) {
-    //    [sharedApplication beginIgnoringInteractionEvents];
-    //}
 
     if (scrollToTop) {
         // If the table view isn't already scrolled to top, we do that now, deferring the actual table view reloading logic until the animation finishes.
@@ -244,9 +243,6 @@
 
             // Re-enable interaction events once every thumbnail has been generated
             self.view.userInteractionEnabled = YES;
-            //if ([sharedApplication isIgnoringInteractionEvents]) {
-            //    [sharedApplication endIgnoringInteractionEvents];
-            //}
         };
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
@@ -329,10 +325,17 @@
 #pragma mark - Image Helper Functions
 
 static UIImage * _FICDColorAveragedImageFromImage(UIImage *image) {
+
     // Crop the image to the area occupied by the status bar
     CGSize imageSize = [image size];
-    CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
-    CGRect cropRect = CGRectMake(0, 0, imageSize.width, statusBarSize.height);
+    __block CGFloat statusBarHeight;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController* vc = [UIApplication sharedApplication].delegate.window.rootViewController;
+        statusBarHeight = vc.view.window.windowScene.statusBarManager.statusBarFrame.size.height;
+    });
+
+    CGRect cropRect = CGRectMake(0, 0, imageSize.width, statusBarHeight);
     
     CGImageRef croppedImageRef = CGImageCreateWithImageInRect([image CGImage], cropRect);
     UIImage *statusBarImage = [UIImage imageWithCGImage:croppedImageRef];
@@ -378,9 +381,8 @@ static BOOL _FICDImageIsLight(UIImage *image) {
         UInt8 pixelB = pixelBytes[3];
         
         // Calculate the perceived luminance of the pixel; the human eye favors green, followed by red, then blue.
-        double percievedLuminance = 1 - (((0.299 * pixelR) + (0.587 * pixelG) + (0.114 * pixelB)) / 255);
-        
-        imageIsLight = percievedLuminance < 0.5;
+        double perceivedLuminance = 1 - (((0.299 * pixelR) + (0.587 * pixelG) + (0.114 * pixelB)) / 255);
+        imageIsLight = perceivedLuminance < 0.5;
     }
     
     return imageIsLight;
@@ -389,8 +391,8 @@ static BOOL _FICDImageIsLight(UIImage *image) {
 - (void)_updateStatusBarStyleForColorAveragedImage:(UIImage *)colorAveragedImage {
     BOOL imageIsLight = _FICDImageIsLight(colorAveragedImage);
 
-    UIStatusBarStyle statusBarStyle = imageIsLight ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
-    [[UIApplication sharedApplication] setStatusBarStyle:statusBarStyle animated:YES];
+    statusBarStyle = imageIsLight ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
+    [self setNeedsStatusBarAppearanceUpdate];
 }
 
 #pragma mark - Working with Thumbnails
@@ -553,12 +555,18 @@ static BOOL _FICDImageIsLight(UIImage *image) {
             [self _updateStatusBarStyleForColorAveragedImage:colorAveragedImage];
         }
     } else {
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
+        statusBarStyle = UIStatusBarStyleLightContent;
+        [self setNeedsStatusBarAppearanceUpdate];
     }
 }
 
+- (UIStatusBarStyle) preferredStatusBarStyle {
+    return statusBarStyle;
+}
+
 - (void)photoDisplayController:(FICDFullscreenPhotoDisplayController *)photoDisplayController willHideSourceImage:(UIImage *)sourceImage forPhoto:(FICDPhoto *)photo withThumbnailImageView:(UIImageView *)thumbnailImageView {
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    statusBarStyle = UIStatusBarStyleDefault;
+    [self setNeedsStatusBarAppearanceUpdate];
 }
 
 #pragma mark - NSObject (NSKeyValueObserving)

@@ -193,7 +193,6 @@
 #pragma mark - Reloading Data
 
 - (void)reloadTableViewAndScrollToTop:(BOOL)scrollToTop {
-    //UIApplication *sharedApplication = [UIApplication sharedApplication];
     
     // Don't allow interaction events to interfere with thumbnail generation
     self.view.userInteractionEnabled = NO;
@@ -202,10 +201,9 @@
         // If the table view isn't already scrolled to top, we do that now, deferring the actual table view reloading logic until the animation finishes.
         CGFloat tableViewTopmostContentOffsetY = 0;
         CGFloat tableViewCurrentContentOffsetY = [_tableView contentOffset].y;
-        
-        if ([self respondsToSelector:@selector(topLayoutGuide)]) {
-            id <UILayoutSupport> topLayoutGuide = [self topLayoutGuide];
-            tableViewTopmostContentOffsetY = -[topLayoutGuide length];
+
+        if (@available(iOS 11, *)) {
+            tableViewTopmostContentOffsetY = -self.view.safeAreaLayoutGuide.layoutFrame.origin.y;
         }
         
         if (tableViewCurrentContentOffsetY > tableViewTopmostContentOffsetY) {

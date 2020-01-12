@@ -16,9 +16,10 @@ size_t FICByteAlignForCoreAnimation(size_t bytesPerRow);
 NSString * _Nullable FICStringWithUUIDBytes(CFUUIDBytes UUIDBytes);
 CFUUIDBytes FICUUIDBytesWithString(NSString* _Nonnull string);
 
-NSString* FICUUIDFromMD5HashOfString(NSString* _Nonnull string);
-CFUUIDBytes FICUUIDBytesFromMD5HashOfString(NSString* _Nonnull string); // Useful for computing an entity's UUID from a URL, for example
-
-NSString* FICUUIDFromSHA256HashOfString(NSString* _Nonnull string);
+NSString* FICCFUUIDCreate(void);
+/*
+NSString* FICUUIDFromMD5HashOfString(NSString* _Nonnull md5Hash); // Useful for computing an entity's UUID from a URL, for example
+NSString* FICUUIDFromSHA256HashOfString(NSString* _Nonnull sha256Hash);
+ */
 
 NS_ASSUME_NONNULL_END

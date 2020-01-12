@@ -175,17 +175,19 @@ static UIImage* _FICDStatusBarImageFromImage(UIImage* image) {
 
 #pragma mark - FICImageCacheEntity
 
-- (NSString *)fic_UUID {
+- (NSString*) fic_UUID {
     if (_UUID == nil) {
         // MD5 hashing is expensive enough that we only want to do it once
-        NSString *imageName = [_sourceImageURL lastPathComponent];
-        _UUID = FICUUIDFromMD5HashOfString(imageName);
+        //NSString *imageName = [_sourceImageURL lastPathComponent];
+        //_UUID = FICUUIDFromMD5HashOfString(imageName);
+        //_UUID = FICUUIDFromSHA256HashOfString(imageName);
+        _UUID = FICCFUUIDCreate();
     }
     
     return _UUID;
 }
 
-- (NSString *)fic_sourceImageUUID {
+- (NSString*)  fic_sourceImageUUID {
     return [self fic_UUID];
 }
 

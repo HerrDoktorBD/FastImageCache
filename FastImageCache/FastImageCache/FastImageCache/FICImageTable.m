@@ -336,8 +336,8 @@ static BOOL FICProtectedDataAvailable = NO;
             // Create context whose backing store *is* the mapped file data
             FICImageTableEntry *entryData = [self _entryDataAtIndex:newEntryIndex];
             if (entryData != nil) {
-                [entryData setEntityUUIDBytes:FICUUIDBytesWithString(entityUUID)];
-                [entryData setSourceImageUUIDBytes:FICUUIDBytesWithString(sourceImageUUID)];
+                [entryData setEntityUUIDBytes: FICUUIDBytesWithString(entityUUID)];
+                [entryData setSourceImageUUIDBytes: FICUUIDBytesWithString(sourceImageUUID)];
                 
                 // Update our book-keeping
                 [_indexMap setObject:[NSNumber numberWithUnsignedInteger:newEntryIndex] forKey:entityUUID];

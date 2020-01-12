@@ -350,6 +350,7 @@ static void _FICAddCompletionBlockForEntity(NSString *formatName, NSMutableDicti
         
         NSString *entityUUID = [entity fic_UUID];
         NSString *sourceImageUUID = [entity fic_sourceImageUUID];
+
         FICImageFormat *imageFormat = [imageTable imageFormat];
         NSString *imageFormatName = [imageFormat name];
         FICEntityImageDrawingBlock imageDrawingBlock = [entity fic_drawingBlockForImage:image withFormatName:imageFormatName];

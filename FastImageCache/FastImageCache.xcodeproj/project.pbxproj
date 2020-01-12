@@ -101,7 +101,6 @@
 		EA0A747923CA06640035926C /* FastImageCacheTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FastImageCacheTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA0A747B23CA06640035926C /* FastImageCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FastImageCacheTests.m; sourceTree = "<group>"; };
 		EA0A747D23CA06640035926C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EA0A749523CA9FD70035926C /* FastImageCacheTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FastImageCacheTests-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -236,7 +235,6 @@
 			children = (
 				EA0A747B23CA06640035926C /* FastImageCacheTests.m */,
 				EA0A747D23CA06640035926C /* Info.plist */,
-				EA0A749523CA9FD70035926C /* FastImageCacheTests-Bridging-Header.h */,
 			);
 			path = FastImageCacheTests;
 			sourceTree = "<group>";
